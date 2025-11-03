@@ -1,4 +1,4 @@
-function [model,id_target,TMPR] = introExchange(input_model,id_biomass,id_input,id_met)
+function [model,id_target,TMPR] = introExchange(input_model,id_biomass,id_input,name_met)
 % Detect the transport reaction of the target metabolite. If it exists,
 % return the reacion id and TMPR. If it not, add a virtual transport reaction for 
 % the target metabolite.
@@ -22,7 +22,8 @@ else
 end
 
 % find if transport reaction exists or not
-name_met=model.mets{id_met};
+id_met=find(strcmp(name_met,model.mets));
+%name_met=model.mets{id_met};
 ex_rxn=char("EX_"+string(name_met));
 dx_rxn=char("DM_"+string(name_met));
 

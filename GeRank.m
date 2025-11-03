@@ -2,7 +2,7 @@ function [fstat,gstat] = GeRank(model,genelist,met_id,max_loop)
 %UNTITLED 此处显示有关此函数的摘要
 %   此处显示详细说明
 
-
+initCobraToolbox;
 id_biomass=find(model.c);
 id_oxygen=find(strcmp(model.rxns,"EX_o2_e"));
 id_carbon=find(strcmp(model.rxns,"EX_glc__D_e"));
