@@ -5,6 +5,7 @@ import copy
 import os
 import argparse
 import requests
+import shutil
 
 def splitOutGene(grRule):
     if len(grRule) == 0:
@@ -238,36 +239,36 @@ def countWeightedScore(model, strategy="degree"):
 
 
 def save_countTwo(model, modelname):
-    if os.path.exists(f"{modelname}_multiplicity.txt") and os.path.exists(f"{modelname}_frequency.txt"):
+    if os.path.exists(f"rank-results/{modelName}/{modelname}_multiplicity.txt") and os.path.exists(f"rank-results/{modelName}/{modelname}_frequency.txt"):
         return None, None, None
     nGr, frequncylist, propotionlist = countTwo(model)
-    with open(f"{modelname}_multiplicity.txt", "w") as f:
+    with open(f"rank-results/{modelName}/{modelname}_multiplicity.txt", "w") as f:
         f.write(f"total grRules:{nGr}\n")
         for key, value in propotionlist.items():
             print(f"{key}:{value/nGr*100}")
             f.write(f"{key}:{value/nGr*100}\n")
     
-    with open(f"{modelname}_frequency.txt", "w") as f:
+    with open(f"rank-results/{modelName}/{modelname}_frequency.txt", "w") as f:
         for key, value in propotionlist.items():
             f.write(f"{key}:{value}\n")
             print(f"{key}:{value}")
     return nGr, frequncylist, propotionlist
 
 def save_score(model, modelname):
-    if os.path.exists(f"{modelname}_logic.txt"):
+    if os.path.exists(f"rank-results/{modelName}/{modelname}_logic.txt"):
         return None
     geneScore = countScore(model)
-    with open(f"{modelname}_logic.txt", "w") as f:
+    with open(f"rank-results/{modelName}/{modelname}_logic.txt", "w") as f:
         for key, value in geneScore.items():
             f.write(f"{key}:{value}\n")
             print(f"{key}:{value}")
     return geneScore
 
 def save_weightedScore(model, modelname, strategy="degree"):
-    if os.path.exists(f"{modelname}_score_{strategy}.txt"):
+    if os.path.exists(f"rank-results/{modelName}/{modelname}_score_{strategy}.txt"):
         return None
     geneScore = countWeightedScore(model, strategy)
-    with open(f"{modelname}_score_{strategy}.txt", "w") as f:
+    with open(f"rank-results/{modelName}/{modelname}_score_{strategy}.txt", "w") as f:
         for key, value in geneScore.items():
             f.write(f"{key}:{value}\n")
             print(f"{key}:{value}")
@@ -276,6 +277,13 @@ def save_weightedScore(model, modelname, strategy="degree"):
 def main(modelname, strategy):
     readm = sco.loadmat(f'data/{modelname}.mat', struct_as_record=False)
     model = readm[modelname][0][0]
+    
+    if not os.path.exists("rank-results"):
+        os.mkdir("rank-results")
+    if not os.path.exists(f"rank-results/{modelName}"):
+        os.mkdir(f"rank-results/{modelName}")
+    shutil.copy("process.py", f"rank-results/{modelName}/process.py")
+
     if strategy == "multiplicity" or strategy == "frequency" or strategy == "all":
         _, _, _ = save_countTwo(model, modelname)
         print(f"saved in {modelname}_{strategy}.txt")
@@ -321,7 +329,6 @@ if __name__ == "__main__":
         raise ValueError(f"{strategy} name is not correct.")
     
     # load .mat data
-    modelName = "iJR904"
     dataFolder = os.path.join(os.getcwd(), "data")
     modelNames = os.listdir(os.path.join(dataFolder))
     modelChoice = [f.split(".")[0] for f in modelNames]
